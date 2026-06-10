@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>電気代かんたん計算 | アマネライフ</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* アマネグリーン */
+  --green-50:  #F0F9EC;
+  --green-100: #D6EECC;
+  --green-200: #B2DA9A;
+  --green-400: #7BBC55;
+  --green-600: #4E8C2D;
+  --green-800: #2E5519;
+
+  /* オレンジゴールド（D＝決断のきっかけ） */
+  --og:        #E8820C;
+  --og-light:  #FFF0DC;
+  --og-mid:    #F5A340;
+  --og-border: #F0C070;
+
+  /* ベース */
+  --cream:     #FBF8F2;
+  --cream-mid: #F3EFE5;
+  --cream-drk: #E8E2D5;
+  --ink:       #2D2A24;
+  --ink-mid:   #5C5750;
+  --ink-lt:    #9C9790;
+  --white:     #FFFFFF;
+
+  --r: 20px;
+  --r-sm: 14px;
+  --r-lg: 28px;
+  --r-pill: 999px;
+  --shadow-sm: 0 2px 10px rgba(100,120,80,0.10);
+  --shadow-md: 0 4px 20px rgba(100,120,80,0.14);
+  --shadow-og: 0 6px 24px rgba(232,130,12,0.28);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: 'M PLUS Rounded 1c', 'Zen Maru Gothic', sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+  line-height: 1.7;
+  font-size: 16px;
+}
+
+.page {
+  max-width: 480px;
+  margin: 0 auto;
+  background: var(--cream);
+  min-height: 100vh;
+}
+
+/* ── ヘッダー（D：圧倒的な違い宣言） ── */
+.hdr {
+  background: linear-gradient(160deg, #88C057 0%, #62A635 55%, #3E7020 100%);
+  padding: 38px 24px 56px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.hdr::before {
+  content: '';
+  position: absolute;
+  bottom: -20px; left: 0; right: 0;
+  height: 44px;
+  background: var(--cream);
+  border-radius: 50% 50% 0 0 / 44px 44px 0 0;
+}
+.hdr-emoji {
+  font-size: 56px;
+  margin-bottom: 10px;
+  display: block;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.12));
+}
+.hdr-ttl {
+  font-family: 'Zen Maru Gothic', sans-serif;
+  font-size: 19px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.55;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.14);
+}
+.hdr-ttl .big {
+  font-size: 27px;
+  font-weight: 900;
+  display: block;
+  margin-top: 8px;
+  letter-spacing: 0.01em;
+}
+
+/* ── セクション ── */
+.section { padding: 28px 20px; }
+.section + .section { padding-top: 0; }
+
+.sec-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--green-600);
+  background: var(--green-50);
+  border-radius: var(--r-pill);
+  padding: 6px 18px;
+  margin-bottom: 16px;
+}
+.sec-label.urgent {
+  color: var(--og);
+  background: var(--og-light);
+  border: 1.5px solid var(--og-border);
+}
+
+/* ── 入力パネル ── */
+.input-card {
+  background: var(--white);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-md);
+  padding: 28px 22px 24px;
+  margin-bottom: 20px;
+}
+.input-lead {
+  text-align: center;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--ink);
+  margin-bottom: 18px;
+  line-height: 1.6;
+}
+.input-lead span {
+  color: var(--green-600);
+  background: linear-gradient(transparent 62%, var(--green-100) 62%);
+  padding: 0 2px;
+}
+
+/* タップで選ぶ → 4ボタンを2×2の大きなボタンに */
+.step-btns {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.step-btn {
+  position: relative;
+  background: var(--white);
+  border: 2.5px solid var(--green-200);
+  border-radius: var(--r-sm);
+  font-family: 'Zen Maru Gothic', sans-serif;
+  font-size: 19px;
+  font-weight: 900;
+  color: var(--green-800);
+  padding: 18px 6px;
+  cursor: pointer;
+  transition: all 0.18s;
+  text-align: center;
+  line-height: 1.2;
+  box-shadow: 0 3px 0 var(--green-100);
+}
+.step-btn small {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink-lt);
+  margin-top: 3px;
+  letter-spacing: 0.04em;
+}
+.step-btn:active { transform: translateY(3px) scale(0.97); box-shadow: 0 0 0 var(--green-100); }
+.step-btn.active {
+  background: linear-gradient(135deg, #7BBC55 0%, #4E8C2D 100%);
+  border-color: var(--green-600);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(78,140,45,0.35);
+  transform: translateY(0);
+}
+.step-btn.active small { color: rgba(255,255,255,0.85); }
+.step-btn.active::after {
+  content: '✓';
+  position: absolute;
+  top: -10px; right: -6px;
+  width: 26px; height: 26px;
+  background: var(--og);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 900;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(232,130,12,0.45);
+  animation: pop-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.tap-hint {
+  font-size: 14px;
+  text-align: center;
+  color: var(--green-600);
+  margin-bottom: 18px;
+  font-weight: 800;
+}
+.tap-hint .finger {
+  display: inline-block;
+  animation: bob 1.4s ease-in-out infinite;
+}
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-5px); }
+}
+
+.amount-label {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-lt);
+  margin-bottom: 8px;
+}
+.amount-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--green-50);
+  border: 2px solid var(--green-200);
+  border-radius: var(--r);
+  padding: 6px 6px 6px 20px;
+  margin-bottom: 16px;
+  transition: border-color 0.2s;
+}
+.amount-wrap:focus-within {
+  border-color: var(--green-400);
+  box-shadow: 0 0 0 4px rgba(123,188,85,0.18);
+}
+.amount-wrap input {
+  flex: 1;
+  font-family: 'Zen Maru Gothic', sans-serif;
+  font-size: 40px;
+  font-weight: 900;
+  color: var(--green-600);
+  background: transparent;
+  border: none;
+  outline: none;
+  text-align: right;
+  width: 0;
+  min-width: 0;
+  -moz-appearance: textfield;
+}
+.amount-wrap input::-webkit-outer-spin-button,
+.amount-wrap input::-webkit-inner-spin-button { -webkit-appearance: none; }
+.amount-unit {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink-mid);
+  white-space: nowrap;
+  padding-left: 8px;
+  padding-right: 6px;
+}
+.rate-note {
+  text-align: center;
+  font-size: 12px;
+  color: var(--ink-mid);
+  background: var(--cream);
+  border-radius: 10px;
+  padding: 10px 12px;
+  line-height: 1.7;
+}
+.rate-note b { color: var(--green-600); font-size: 14px; }
+
+/* ── 結果カード ── */
+.result-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.r-card {
+  background: var(--white);
+  border-radius: var(--r);
+  box-shadow: var(--shadow-sm);
+  padding: 20px 14px;
+  text-align: center;
+}
+/* D×U：30年累計 */
+.r-card.big {
+  grid-column: span 2;
+  background: linear-gradient(135deg, #3E7020 0%, #2C5516 100%);
+  padding: 28px 20px 24px;
+  position: relative;
+  overflow: hidden;
+  border: 2.5px solid var(--og-mid);
+  animation: pulse-og 2.8s ease-in-out infinite;
+}
+@keyframes pulse-og {
+  0%,100% { box-shadow: 0 8px 32px rgba(46,85,25,0.40), 0 0 0 0 rgba(232,130,12,0.4); }
+  55%      { box-shadow: 0 8px 32px rgba(46,85,25,0.40), 0 0 0 8px rgba(232,130,12,0); }
+}
+.r-card.big::before {
+  content: '';
+  position: absolute;
+  top: -30px; right: -30px;
+  width: 100px; height: 100px;
+  background: rgba(245,163,64,0.12);
+  border-radius: 50%;
+}
+.r-card.big::after {
+  content: '';
+  position: absolute;
+  bottom: -36px; left: -30px;
+  width: 130px; height: 130px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 50%;
+}
+.r-card.big .og-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--og);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  padding: 5px 16px;
+  border-radius: var(--r-pill);
+  margin-bottom: 10px;
+  box-shadow: 0 2px 8px rgba(232,130,12,0.40);
+  position: relative;
+  z-index: 1;
+}
+.r-eye {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-lt);
+  margin-bottom: 6px;
+  letter-spacing: 0.05em;
+}
+.r-card.big .r-eye {
+  color: rgba(255,255,255,0.85);
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  position: relative;
+  z-index: 1;
+}
+.r-num {
+  font-family: 'Zen Maru Gothic', sans-serif;
+  font-size: 30px;
+  font-weight: 900;
+  color: var(--ink);
+  line-height: 1;
+}
+.r-num sub { font-size: 14px; font-weight: 700; vertical-align: baseline; margin-left: 2px; }
+.r-card.big .r-num {
+  color: #fff;
+  font-size: 64px;
+  text-shadow: 0 2px 16px rgba(0,0,0,0.22);
+  letter-spacing: -0.02em;
+  position: relative;
+  z-index: 1;
+}
+.r-card.big .r-num sub { font-size: 26px; }
+.r-hint {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.92);
+  margin-top: 10px;
+  position: relative;
+  z-index: 1;
+  background: rgba(255,255,255,0.12);
+  border-radius: 10px;
+  padding: 8px 14px;
+  display: inline-block;
+  line-height: 1.6;
+}
+
+/* ── バーグラフ ── */
+.chart-section {
+  background: var(--white);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 24px 20px 22px;
+  margin-bottom: 10px;
+}
+.chart-ttl {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--ink);
+  text-align: center;
+  margin-bottom: 20px;
+  letter-spacing: 0.04em;
+}
+.chart-area {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 20px;
+  position: relative;
+}
+.chart-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  max-width: 130px;
+}
+.bar-num-above {
+  font-family: 'Zen Maru Gothic', sans-serif;
+  font-weight: 900;
+  font-size: 19px;
+  color: var(--green-600);
+  text-align: center;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+.bar-track {
+  width: 100%;
+  height: 160px;
+  display: flex;
+  align-items: flex-end;
+}
+.bar-outer {
+  width: 100%;
+  border-radius: 16px 16px 0 0;
+  transition: height 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.bar-10 { background: var(--green-100); }
+.bar-30 { background: linear-gradient(180deg, #7BBC55 0%, #3E7020 100%); }
+.bar-lbl-out { font-size: 14px; font-weight: 800; color: var(--ink-mid); text-align: center; }
+.bar-lbl-sub { font-size: 11px; color: var(--ink-lt); margin-top: 2px; text-align: center; }
+
+/* 納得ポイント：倍率バッジ */
+.times-badge {
+  position: absolute;
+  left: 50%;
+  top: 38%;
+  transform: translateX(-50%);
+  background: var(--og);
+  color: #fff;
+  font-family: 'Zen Maru Gothic', sans-serif;
+  font-size: 14px;
+  font-weight: 900;
+  padding: 7px 14px;
+  border-radius: var(--r-pill);
+  white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(232,130,12,0.40);
+  z-index: 2;
+}
+.times-badge b { font-size: 19px; letter-spacing: -0.01em; }
+.times-badge::after {
+  content: '';
+  position: absolute;
+  bottom: -6px; left: 50%;
+  transform: translateX(-50%);
+  border: 7px solid transparent;
+  border-top-color: var(--og);
+  border-bottom: none;
+}
+
+/* ── U：今知る理由バナー ── */
+.urgency-banner {
+  background: var(--og-light);
+  border: 2px solid var(--og-border);
+  border-radius: var(--r);
+  padding: 18px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.ub-icon { font-size: 28px; flex-shrink: 0; margin-top: 1px; }
+.ub-text { font-size: 14px; font-weight: 600; color: var(--og); line-height: 1.7; }
+.ub-text strong {
+  font-size: 16.5px;
+  font-weight: 900;
+  display: block;
+  margin-bottom: 4px;
+  color: #C06000;
+}
+
+/* ── VS 比較（C：Before / After） ── */
+.vs-section {
+  background: var(--white);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 26px 18px;
+  margin-bottom: 10px;
+}
+.vs-intro {
+  text-align: center;
+  font-size: 15px;
+  color: var(--ink-mid);
+  margin-bottom: 22px;
+  line-height: 1.75;
+}
+.vs-intro strong {
+  color: var(--ink);
+  font-size: 16.5px;
+  font-weight: 900;
+  background: linear-gradient(transparent 62%, var(--og-light) 62%);
+  padding: 0 2px;
+}
+.vs-heads {
+  display: grid;
+  grid-template-columns: 1fr 32px 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.vs-head-l, .vs-head-r {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 9px 4px;
+  border-radius: var(--r-sm);
+}
+.vs-head-l { background: var(--cream-drk); color: var(--ink-mid); }
+.vs-head-r { background: var(--green-100); color: var(--green-600); }
+
+.vs-track { display: flex; flex-direction: column; gap: 14px; }
+.vs-row {
+  display: grid;
+  grid-template-columns: 1fr 32px 1fr;
+  gap: 8px;
+  align-items: center;
+}
+.bubble {
+  border-radius: 16px;
+  padding: 14px;
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.6;
+}
+.bubble-sad {
+  background: var(--cream-mid);
+  color: var(--ink-mid);
+  border-radius: 16px 16px 16px 4px;
+}
+.bubble-happy {
+  background: var(--green-50);
+  color: var(--green-800);
+  border-radius: 16px 16px 4px 16px;
+  text-align: right;
+}
+.bubble-happy.highlight {
+  background: var(--og-light);
+  color: #8A4500;
+  border: 1.5px solid var(--og-border);
+  font-weight: 800;
+}
+.vs-icon { text-align: center; font-size: 20px; line-height: 1; }
+
+/* ── K：CTA ── */
+.cta-section { margin: 0 20px 20px; }
+.cta-card {
+  background: var(--white);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+.cta-top {
+  background: linear-gradient(135deg, var(--og-light) 0%, #FFF8EC 100%);
+  border-bottom: 2px dashed var(--og-border);
+  padding: 22px 22px 18px;
+  text-align: center;
+}
+.cta-emo { font-size: 40px; display: block; margin-bottom: 8px; }
+.cta-ttl {
+  font-family: 'Zen Maru Gothic', sans-serif;
+  font-size: 19px;
+  font-weight: 900;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.cta-ttl span { color: var(--og); }
+.cta-sub { font-size: 13px; color: var(--ink-mid); font-weight: 500; }
+.cta-body { padding: 22px; }
+.cta-items { list-style: none; margin-bottom: 20px; }
+.cta-items li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink-mid);
+  margin-bottom: 12px;
+  line-height: 1.6;
+}
+.cta-items li::before { content: '✅'; flex-shrink: 0; font-size: 16px; }
+/* K：オレンジゴールドCTAボタン */
+.cta-btn {
+  display: block;
+  width: 100%;
+  background: linear-gradient(135deg, var(--og-mid) 0%, var(--og) 100%);
+  color: #fff;
+  font-family: 'Zen Maru Gothic', sans-serif;
+  font-size: 18px;
+  font-weight: 900;
+  text-align: center;
+  padding: 20px;
+  border-radius: var(--r);
+  border: none;
+  cursor: pointer;
+  box-shadow: var(--shadow-og);
+  letter-spacing: 0.04em;
+  transition: transform 0.15s, box-shadow 0.15s;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+.cta-btn:active {
+  transform: scale(0.97);
+  box-shadow: 0 3px 10px rgba(232,130,12,0.22);
+}
+.cta-btn-sub {
+  font-size: 12px;
+  font-weight: 500;
+  opacity: 0.88;
+  display: block;
+  margin-top: 3px;
+}
+.cta-note { text-align: center; font-size: 11px; color: var(--ink-lt); margin-top: 4px; }
+
+/* フッター */
+.footer {
+  padding: 24px 20px 36px;
+  font-size: 10.5px;
+  color: var(--ink-lt);
+  text-align: center;
+  line-height: 1.8;
+}
+
+@keyframes pop-in {
+  0% { transform: scale(0.85); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.pop { animation: pop-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+@keyframes count-up {
+  from { opacity: 0.3; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.num-anim { animation: count-up 0.35s ease both; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- ヘッダー（D：圧倒的な違い宣言） -->
+  <div class="hdr">
+        <span class="hdr-emoji">🏠</span>
+    <h1 class="hdr-ttl">
+      毎月の光熱費を入れるだけ！
+      <span class="big">将来の光熱費を<br>サクッと計算📱</span>
+    </h1>
+  </div>
+
+  <!-- シミュレーター（B・E） -->
+  <div class="section" style="padding-top:36px;">
+    <div class="sec-label">💡 かんたん試算</div>
+
+    <div class="input-card pop">
+      <p class="input-lead">今の<span>毎月の光熱費（平均）</span>に<br>いちばん近いボタンをタップ！</p>
+
+      <div class="step-btns">
+        <button class="step-btn" onclick="setVal(5000)">5,000円<small>おひとり暮らし</small></button>
+        <button class="step-btn active" onclick="setVal(10000)">10,000円<small>2〜3人家族</small></button>
+        <button class="step-btn" onclick="setVal(15000)">15,000円<small>3〜4人家族</small></button>
+        <button class="step-btn" onclick="setVal(20000)">20,000円<small>オール電化など</small></button>
+      </div>
+      <p class="tap-hint"><span class="finger">👆</span> タップした瞬間、下の金額が変わります</p>
+
+      <p class="amount-label">金額は直接入力でもOK</p>
+      <div class="amount-wrap">
+        <input type="number" id="monthly" value="10000" step="500" inputmode="numeric" oninput="calc()">
+        <span class="amount-unit">円/月</span>
+      </div>
+
+      <div class="rate-note">
+        電気代上昇率：<b>年 5.0%</b> で試算<br>
+        <span style="opacity:0.7">※公的データを参考にした仮定値です</span>
+      </div>
+    </div>
+
+    <!-- 結果カード -->
+    <div class="result-row">
+      <div class="r-card">
+        <div class="r-eye">📅 年 間</div>
+        <div class="r-num" id="rY">12<sub>万円</sub></div>
+      </div>
+      <div class="r-card">
+        <div class="r-eye">🗓 10年 累計</div>
+        <div class="r-num" id="r10">151<sub>万円</sub></div>
+      </div>
+      <!-- D×U：30年累計 -->
+      <div class="r-card big">
+        <div class="og-badge">🔥 このまま払い続けると…</div>
+        <div class="r-eye">🏆 30年累計（上昇込み）</div>
+        <div class="r-num" id="r30">797<sub>万円</sub></div>
+        <div class="r-hint" id="rHint">お子さまの学費や老後の資金に使えたかも…🌱</div>
+      </div>
+    </div>
+
+    <!-- グラフ（I：見える化） -->
+    <div class="chart-section">
+      <div class="chart-ttl">このまま払い続けたら…💸</div>
+      <div class="chart-area">
+        <div class="chart-col">
+          <div class="bar-num-above" id="bn10">151万</div>
+          <div class="bar-track">
+            <div class="bar-outer bar-10" id="b10" style="height:88px;"></div>
+          </div>
+          <div>
+            <div class="bar-lbl-out">10年後</div>
+            <div class="bar-lbl-sub">の累計</div>
+          </div>
+        </div>
+        <div class="times-badge" id="timesBadge">約<b>5.3</b>倍に！</div>
+        <div class="chart-col">
+          <div class="bar-num-above" id="bn30">797万</div>
+          <div class="bar-track">
+            <div class="bar-outer bar-30" id="b30" style="height:160px;"></div>
+          </div>
+          <div>
+            <div class="bar-lbl-out">30年後</div>
+            <div class="bar-lbl-sub">の累計</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- U：今知る理由バナー -->
+    <div class="urgency-banner">
+      <div class="ub-icon">⏰</div>
+      <div class="ub-text">
+        <strong>今の電気代、実は見直せるかも</strong>
+        電気代は毎年上がり続けています。知っているだけで、家族の選択肢がまったく変わります。
+      </div>
+    </div>
+
+  </div>
+
+  <!-- VS 比較（C：Before / After ＋ N：名もなき敵） -->
+  <div class="section">
+    <div class="sec-label urgent">🤔 知ってると違う？</div>
+
+    <div class="vs-section">
+      <p class="vs-intro">光熱費のこと、<strong>「知っているか知らないか」</strong>で<br>将来こんなに違いが出てくるかも…！</p>
+
+      <div class="vs-heads">
+        <div class="vs-head-l">😟 知らないまま…</div>
+        <div></div>
+        <div class="vs-head-r">😊 知っておくと！</div>
+      </div>
+
+      <div class="vs-track">
+        <div class="vs-row">
+          <div class="bubble bubble-sad">値上がりしても「なんで…」と溜息。</div>
+          <div class="vs-icon">⚡</div>
+          <div class="bubble bubble-happy">ニュースを見ても全然気にならない！</div>
+        </div>
+        <div class="vs-row">
+          <div class="bubble bubble-sad">冬の請求書を見て「高すぎ」と後悔。</div>
+          <div class="vs-icon">❄️</div>
+          <div class="bubble bubble-happy">夏も冬も家族で快適に過ごせてる🏡</div>
+        </div>
+        <div class="vs-row">
+          <div class="bubble bubble-sad">合うかどうかわからず、ずっとモヤモヤ。</div>
+          <div class="vs-icon">💭</div>
+          <div class="bubble bubble-happy highlight">自信を持って「うちはこれがいい！」と言える。</div>
+        </div>
+        <div class="vs-row">
+          <div class="bubble bubble-sad">停電のとき、ただ我慢するしかない…。</div>
+          <div class="vs-icon">🔦</div>
+          <div class="bubble bubble-happy highlight">もしもの備えもバッチリで安心！💪</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    ※本資料は情報提供を目的とした試算です。実際の効果は条件により異なります。<br>
+    ※電気代上昇率は全国平均ベースの参考値であり、将来を保証するものではありません。<br>
+    © アマネライフ
+  </div>
+
+</div>
+
+<script>
+const presets = [5000, 10000, 15000, 20000];
+const prevVals = { rY: 0, r10: 0, r30: 0 };
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function setVal(v) {
+  document.getElementById('monthly').value = v;
+  document.querySelectorAll('.step-btn').forEach((b, i) => {
+    b.classList.toggle('active', presets[i] === v);
+  });
+  calc();
+}
+
+function man(n) { return Math.round(n / 10000); }
+
+/* 数字がコロコロ増えるカウントアップ演出 */
+function rollNum(el, key, to, unit) {
+  const from = prevVals[key] || 0;
+  prevVals[key] = to;
+  if (reduceMotion || from === to) {
+    el.innerHTML = to + '<sub>' + unit + '</sub>';
+    return;
+  }
+  const dur = 550;
+  const start = performance.now();
+  function tick(now) {
+    const p = Math.min((now - start) / dur, 1);
+    const ease = 1 - Math.pow(1 - p, 3);
+    const v = Math.round(from + (to - from) * ease);
+    el.innerHTML = v + '<sub>' + unit + '</sub>';
+    if (p < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+function calc() {
+  const m = parseFloat(document.getElementById('monthly').value) || 0;
+  const r = 0.05;
+  let s10 = 0, s30 = 0;
+  for (let i = 0; i < 30; i++) {
+    const yr = m * 12 * Math.pow(1 + r, i);
+    if (i < 10) s10 += yr;
+    s30 += yr;
+  }
+  const y = m * 12;
+
+  rollNum(document.getElementById('rY'),  'rY',  man(y),   '万円');
+  rollNum(document.getElementById('r10'), 'r10', man(s10), '万円');
+  rollNum(document.getElementById('r30'), 'r30', man(s30), '万円');
+
+  const man30 = man(s30);
+  document.getElementById('bn10').textContent = man(s10) + '万';
+  document.getElementById('bn30').textContent = man30 + '万';
+
+  /* 納得ポイント：年間→30年累計の倍率を表示 */
+  if (y > 0) {
+    const times = (s30 / (s10 || 1)).toFixed(1);
+    document.getElementById('timesBadge').innerHTML = '約<b>' + times + '</b>倍に！';
+    document.getElementById('timesBadge').style.display = '';
+  } else {
+    document.getElementById('timesBadge').style.display = 'none';
+  }
+
+  const hint = man30 >= 500
+    ? `家族旅行 ${Math.round(man30 / 30)}回分以上に使えたかも…🌱`
+    : `お子さまの学費や老後の資金に使えたかも…🌱`;
+  document.getElementById('rHint').textContent = hint;
+
+  const maxH = 160, minH = 36;
+  const h10 = s30 > 0 ? Math.max(minH, Math.round((s10 / s30) * maxH)) : minH;
+  document.getElementById('b10').style.height = h10 + 'px';
+  document.getElementById('b30').style.height = maxH + 'px';
+
+  const v = parseInt(document.getElementById('monthly').value);
+  document.querySelectorAll('.step-btn').forEach((b, i) => {
+    b.classList.toggle('active', presets[i] === v);
+  });
+}
+
+calc();
+</script>
+</body>
+</html>
